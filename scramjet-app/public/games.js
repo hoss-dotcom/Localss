@@ -44,9 +44,12 @@ async function openProxy(url, title) {
   document.getElementById("proxy-overlay").classList.add("active");
 }
 
-document.getElementById("overlay-close").addEventListener("click", () => {
-  document.getElementById("proxy-overlay").classList.remove("active");
-  document.getElementById("overlay-content").innerHTML = "";
+const _overlayClose = document.getElementById("overlay-close");
+if (_overlayClose) _overlayClose.addEventListener("click", () => {
+  const ov = document.getElementById("proxy-overlay");
+  const oc = document.getElementById("overlay-content");
+  if (ov) ov.classList.remove("active");
+  if (oc) oc.innerHTML = "";
 });
 
 // ============================================================

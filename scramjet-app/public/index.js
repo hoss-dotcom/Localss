@@ -37,23 +37,23 @@ async function openProxy(url, title) {
   document.getElementById("proxy-overlay").classList.add("active");
 }
 
-document.getElementById("overlay-close").addEventListener("click", () => {
-  document.getElementById("proxy-overlay").classList.remove("active");
-  document.getElementById("overlay-content").innerHTML = "";
+const _overlayClose = document.getElementById("overlay-close");
+if (_overlayClose) _overlayClose.addEventListener("click", () => {
+  const ov = document.getElementById("proxy-overlay");
+  const oc = document.getElementById("overlay-content");
+  if (ov) ov.classList.remove("active");
+  if (oc) oc.innerHTML = "";
 });
 
 // ============================================================
 // NAV BUTTONS
 // ============================================================
-document.getElementById("games-btn").addEventListener("click", () => {
-  window.location.href = "/games.html";
-});
-document.getElementById("movies-btn").addEventListener("click", () => {
-  openProxy("https://toustream.xyz/", "🎬 Movies");
-});
-document.getElementById("music-btn").addEventListener("click", () => {
-  openProxy("https://monochrome.tf", "🎵 Music");
-});
+const _gamesBtn = document.getElementById("games-btn");
+const _moviesBtn = document.getElementById("movies-btn");
+const _musicBtn  = document.getElementById("music-btn");
+if (_gamesBtn)  _gamesBtn.addEventListener("click",  () => { window.location.href = "/games.html"; });
+if (_moviesBtn) _moviesBtn.addEventListener("click", () => { openProxy("https://toustream.xyz/", "🎬 Movies"); });
+if (_musicBtn)  _musicBtn.addEventListener("click",  () => { openProxy("https://monochrome.tf", "🎵 Music"); });
 
 // ============================================================
 // CLOCK
