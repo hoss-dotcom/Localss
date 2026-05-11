@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games — Local</title>
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css" />
+  <script src="/scram/scramjet.all.js"></script>
+  <script src="/baremux/index.js"></script>
+  <script src="register-sw.js" defer></script>
+  <script src="games-data.js" defer></script>
+  <script src="games.js" defer></script>
+</head>
+<body class="theme-snow games-page">
+  <canvas id="snow-canvas"></canvas>
+
+  <div class="games-header">
+    <button class="back-btn" id="back-btn">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      Home
+    </button>
+    <h1>Games</h1>
+  </div>
+
+  <div class="games-grid" id="games-grid"></div>
+
+  <div class="proxy-overlay" id="proxy-overlay">
+    <div class="overlay-bar">
+      <button class="overlay-close" id="overlay-close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back
+      </button>
+      <span class="overlay-title" id="overlay-title"></span>
+    </div>
+    <div class="overlay-content" id="overlay-content"></div>
+  </div>
+</body>
+</html>

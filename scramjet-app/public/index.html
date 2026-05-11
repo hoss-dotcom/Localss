@@ -1,66 +1,137 @@
-<!doctype html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<meta
-			name="viewport"
-			content="width=device-width, initial-scale=1.0, shrink-to-fit=no"
-		/>
-		<title>Scramjet</title>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Local</title>
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css" />
+  <script src="/scram/scramjet.all.js"></script>
+  <script src="/baremux/index.js"></script>
+  <script src="register-sw.js" defer></script>
+  <script src="index.js" defer></script>
+</head>
+<body class="theme-snow">
+  <canvas id="snow-canvas"></canvas>
 
-		<link rel="shortcut icon" content="favicon.webp" />
-	
-		<script src="/scram/scramjet.all.js"></script>
-		<script src="/baremux/index.js"></script>
-		
-		<link rel="stylesheet" href="index.css" />
-		<script src="register-sw.js" defer></script>
-		<script src="search.js" defer></script>
-		<script src="index.js" defer></script>
-	</head>
+  <div class="widgets-bar">
+    <div class="clock-widget">
+      <div class="clock-time" id="clock-time">00:00:00</div>
+      <div class="clock-date" id="clock-date">Loading…</div>
+    </div>
+    <div class="weather-widget" id="weather-widget">
+      <span class="weather-loading">📍 Getting location…</span>
+    </div>
+  </div>
 
-	<body>
-		<div title="Scramjet Logo" class="flex-center logo-wrapper header-center">
-			<img class="logo" src="sj.png" alt="Scramjet" />
-			<h1>Scramjet | MW</h1>
-		</div>
-		<div class="flex-center desc left-margin">
-			<p>
-				Scramjet is an experimental interception based web proxy designed to
-				evade internet censorship, bypass arbitrary web browser restrictions and
-				innovate web proxy technologies.
-			</p>
-		</div>
+  <main class="main-content">
+    <h1 class="site-title">Local</h1>
+    <p class="site-subtitle">your space</p>
 
-		<form id="sj-form" class="flex-center">
-			<input
-				id="sj-search-engine"
-				value="https://www.google.com/search?q=%s"
-				type="hidden"
-			/>
-			<input id="sj-address" type="text" placeholder="Search the web freely" />
-		</form>
-		<div class="desc left-margin">
-			<p id="sj-error"></p>
-			<pre id="sj-error-code"></pre>
-		</div>
-		<footer>
-			<div>
-				<a
-					title="The Mercury Workshop GitHub organization"
-					href="https://github.com/MercuryWorkshop"
-					>Mercury Workshop</a
-				>
-				<a
-					title="The example demo app for Scramjet"
-					href="https://github.com/MercuryWorkshop/Scramjet-Demo"
-					>GitHub</a
-				>
-				<a title="License information" href="credits.html">Credits</a>
-			</div>
-			<div>
-				<span>Scramjet &copy; MW 2025</span>
-			</div>
-		</footer>
-	</body>
+    <div class="nav-buttons">
+      <button class="nav-btn games-btn" id="games-btn">
+        <div class="btn-glow"></div>
+        <span class="btn-icon">🎮</span>
+        <span class="btn-label">Games</span>
+        <div class="btn-shine"></div>
+      </button>
+      <button class="nav-btn movies-btn" id="movies-btn">
+        <div class="btn-glow"></div>
+        <span class="btn-icon">🎬</span>
+        <span class="btn-label">Movies</span>
+        <div class="btn-shine"></div>
+      </button>
+      <button class="nav-btn music-btn" id="music-btn">
+        <div class="btn-glow"></div>
+        <span class="btn-icon">🎵</span>
+        <span class="btn-label">Music</span>
+        <div class="btn-shine"></div>
+      </button>
+    </div>
+  </main>
+
+  <div class="bottom-bar">
+    <button class="icon-btn" id="fullscreen-btn" title="Fullscreen">
+      <svg id="fs-expand" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+      <svg id="fs-shrink" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
+    </button>
+    <button class="icon-btn" id="settings-btn" title="Settings">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
+  </div>
+
+  <div class="settings-overlay" id="settings-overlay"></div>
+  <div class="settings-panel" id="settings-panel">
+    <div class="settings-header">
+      <h2>Settings</h2>
+      <button class="settings-close" id="settings-close">✕</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>🎭 Tab Cloak</h3>
+      <p class="settings-desc">Change how this tab looks to others</p>
+      <div class="tab-presets">
+        <button class="preset-btn" data-title="Google" data-icon="https://www.google.com/favicon.ico">Google</button>
+        <button class="preset-btn" data-title="Khan Academy" data-icon="https://www.khanacademy.org/favicon.ico">Khan Academy</button>
+        <button class="preset-btn" data-title="Google Classroom" data-icon="https://ssl.gstatic.com/classroom/favicon.png">Classroom</button>
+        <button class="preset-btn" data-title="Canvas LMS" data-icon="https://du11hjcvx0uqb.cloudfront.net/favicon.ico">Canvas</button>
+      </div>
+      <div class="input-group">
+        <label>Tab Title</label>
+        <input type="text" id="tab-title-input" placeholder="Custom title…" />
+      </div>
+      <div class="input-group">
+        <label>Favicon URL</label>
+        <input type="text" id="tab-icon-input" placeholder="https://example.com/favicon.ico" />
+      </div>
+      <button class="apply-btn" id="apply-cloak">Apply Cloak</button>
+      <button class="reset-btn" id="reset-cloak">Reset to Default</button>
+    </div>
+
+    <div class="settings-section">
+      <h3>🎨 Themes</h3>
+      <div class="theme-grid">
+        <button class="theme-btn" data-theme="snow">
+          <div class="theme-preview snow-preview"></div>
+          <span>Night Snow</span>
+        </button>
+        <button class="theme-btn" data-theme="forest">
+          <div class="theme-preview forest-preview"></div>
+          <span>Forest</span>
+        </button>
+        <button class="theme-btn" data-theme="sunset">
+          <div class="theme-preview sunset-preview"></div>
+          <span>Sunset</span>
+        </button>
+        <button class="theme-btn" data-theme="space">
+          <div class="theme-preview space-preview"></div>
+          <span>Space</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="settings-section">
+      <h3>🚨 Panic Button</h3>
+      <p class="settings-desc">Instantly navigate away. Press <kbd>Esc</kbd> anywhere.</p>
+      <div class="input-group">
+        <label>Redirect URL</label>
+        <input type="text" id="panic-url-input" value="https://classroom.google.com" />
+      </div>
+      <button class="panic-btn" id="panic-btn">🚨 PANIC NOW</button>
+    </div>
+  </div>
+
+  <div class="proxy-overlay" id="proxy-overlay">
+    <div class="overlay-bar">
+      <button class="overlay-close" id="overlay-close">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Back
+      </button>
+      <span class="overlay-title" id="overlay-title"></span>
+    </div>
+    <div class="overlay-content" id="overlay-content"></div>
+  </div>
+</body>
 </html>
