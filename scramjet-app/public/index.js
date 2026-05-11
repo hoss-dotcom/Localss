@@ -422,7 +422,85 @@ if (_announceDismiss) {
 }
 
 // ============================================================
+// FLOATING TIPS
+// ============================================================
+const TIPS = [
+  { label: "🎮 unblocked games",       query: "unblocked games" },
+  { label: "🎬 free movies online",     query: "free movies online" },
+  { label: "🎵 spotify web player",     query: "open.spotify.com" },
+  { label: "📺 youtube.com",            query: "youtube.com" },
+  { label: "📖 khan academy",           query: "khanacademy.org" },
+  { label: "🎯 cool math games",        query: "coolmathgames.com" },
+  { label: "🌐 enter any URL…",         query: "" },
+  { label: "💡 Esc key = panic mode",   query: "" },
+  { label: "🎭 tab cloak in settings",  query: "" },
+  { label: "🎪 itch.io games",          query: "itch.io" },
+  { label: "🌈 switch themes ⚙️",       query: "" },
+  { label: "🔍 duckduckgo.com",         query: "duckduckgo.com" },
+  { label: "📰 try reddit.com",         query: "reddit.com" },
+  { label: "🎲 try 2048 game",          query: "play2048.co" },
+];
+
+const TIPS_VISIBLE = 4;
+
+function buildTipPill(tip, delay, durationExtra) {
+  const btn = document.createElement("button");
+  btn.className = "tip-pill";
+  btn.textContent = tip.label;
+  btn.style.setProperty("--delay", `${delay}s`);
+  btn.style.setProperty("--duration-extra", `${durationExtra}s`);
+  btn.addEventListener("click", () => {
+    const input = document.getElementById("home-search-input");
+    if (!input) return;
+    if (tip.query) {
+      input.value = tip.query;
+      input.focus();
+    } else {
+      input.focus();
+    }
+  });
+  return btn;
+}
+
+function initTips() {
+  const row = document.getElementById("tips-row");
+  if (!row) return;
+
+  // Shuffle tips
+  const pool = [...TIPS].sort(() => Math.random() - 0.5);
+  let offset = 0;
+
+  function showSet() {
+    const slice = [];
+    for (let i = 0; i < TIPS_VISIBLE; i++) {
+      slice.push(pool[(offset + i) % pool.length]);
+    }
+    offset = (offset + TIPS_VISIBLE) % pool.length;
+
+    // Animate out existing pills
+    const old = [...row.children];
+    old.forEach(p => {
+      p.classList.add("exiting");
+    });
+
+    setTimeout(() => {
+      row.innerHTML = "";
+      slice.forEach((tip, i) => {
+        // Staggered entrance delay, varied float speed per pill
+        const delay = i * 0.09;
+        const extra = (i % 3) * 0.5; // 0s, 0.5s, 1s, 0s for variety
+        row.appendChild(buildTipPill(tip, delay, extra));
+      });
+    }, old.length ? 320 : 0);
+  }
+
+  showSet();
+  setInterval(showSet, 5000);
+}
+
+// ============================================================
 // BOOT
 // ============================================================
 initSnow();
 loadAnnouncements();
+initTips();

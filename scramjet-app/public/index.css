@@ -291,6 +291,64 @@ body {
 @keyframes pulseMusicIdle  { 0%,100%{box-shadow:none} 50%{box-shadow:0 0 18px var(--music-g)} }
 
 /* ============================================================
+   FLOATING TIPS
+   ============================================================ */
+.tips-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 44px;
+  margin-bottom: -10px;
+  min-height: 36px;
+  animation: fadeSlideUp 0.8s 0.3s ease both;
+}
+
+.tip-pill {
+  padding: 7px 17px;
+  border-radius: 50px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(14px);
+  font-size: 0.76rem;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-family: inherit;
+  white-space: nowrap;
+  outline: none;
+  transition: color 0.22s, border-color 0.22s, box-shadow 0.22s, background 0.22s;
+  /* each pill gets its own float assigned in JS via --delay */
+  animation:
+    tipIn 0.45s calc(var(--delay, 0s)) cubic-bezier(0.34,1.56,0.64,1) both,
+    tipFloat calc(2.8s + var(--duration-extra, 0s)) calc(var(--delay, 0s) + 0.45s) ease-in-out infinite;
+}
+
+.tip-pill:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: rgba(255,255,255,0.08);
+  box-shadow: 0 0 14px var(--glow);
+}
+.tip-pill:active { transform: scale(0.95); }
+
+.tip-pill.exiting {
+  animation: tipOut 0.35s ease both !important;
+}
+
+@keyframes tipIn {
+  from { opacity: 0; transform: translateY(14px) scale(0.9); }
+  to   { opacity: 1; transform: translateY(0)   scale(1); }
+}
+@keyframes tipOut {
+  from { opacity: 1; transform: translateY(0)    scale(1); }
+  to   { opacity: 0; transform: translateY(-10px) scale(0.92); }
+}
+@keyframes tipFloat {
+  0%, 100% { transform: translateY(0px); }
+  50%      { transform: translateY(-6px); }
+}
+
+/* ============================================================
    HOME SEARCH BAR
    ============================================================ */
 .home-search-form {
