@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Devlog — Local</title>
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css?v=3" />
+  <style>
+    .devlog-wrap {
+      max-width: 680px; margin: 0 auto; padding: 40px 24px 80px;
+      position: relative; z-index: 1;
+    }
+    .devlog-top {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 36px;
+    }
+    .back-home {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 11px;
+      border: 1px solid var(--glass-border); background: var(--glass);
+      color: var(--text); font-size: 0.84rem; cursor: pointer;
+      transition: all 0.22s; font-family: inherit; text-decoration: none;
+    }
+    .back-home:hover { border-color: var(--accent); color: var(--accent); }
+    .devlog-title { font-size: 1.6rem; font-weight: 300; letter-spacing: 6px; text-transform: uppercase;
+      text-shadow: 0 0 30px var(--accent); }
+    .devlog-sub { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+
+    /* Announcements section */
+    .section-label {
+      font-size: 0.7rem; letter-spacing: 2px; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 14px; padding-left: 2px;
+    }
+
+    /* Timeline */
+    .timeline { position: relative; padding-left: 28px; margin-bottom: 48px; }
+    .timeline::before {
+      content: '';
+      position: absolute; left: 6px; top: 6px; bottom: 0;
+      width: 1px; background: linear-gradient(to bottom, var(--accent), transparent);
+      opacity: 0.3;
+    }
+
+    .tl-entry { position: relative; margin-bottom: 30px; animation: fadeSlideDown 0.5s ease both; }
+    .tl-entry:nth-child(2) { animation-delay: 0.06s; }
+    .tl-entry:nth-child(3) { animation-delay: 0.12s; }
+    .tl-entry:nth-child(4) { animation-delay: 0.18s; }
+    .tl-entry:nth-child(5) { animation-delay: 0.24s; }
+    .tl-entry:nth-child(6) { animation-delay: 0.3s; }
+    .tl-entry:nth-child(7) { animation-delay: 0.36s; }
+
+    .tl-dot {
+      position: absolute; left: -25px; top: 6px;
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--glow);
+      border: 2px solid var(--bg);
+    }
+
+    .tl-card {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: 16px; padding: 18px 20px;
+      transition: border-color 0.25s, box-shadow 0.25s;
+    }
+    .tl-card:hover { border-color: var(--accent); box-shadow: 0 0 20px var(--glow); }
+
+    .tl-head {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .tl-version {
+      font-family: 'Space Mono', monospace; font-size: 0.78rem;
+      color: var(--accent); letter-spacing: 1px;
+    }
+    .tl-date { font-size: 0.68rem; color: var(--text-muted); }
+
+    .tl-title { font-size: 1rem; font-weight: 500; margin-bottom: 10px; }
+
+    .tl-items { list-style: none; padding: 0; }
+    .tl-items li {
+      font-size: 0.82rem; color: var(--text-muted); line-height: 1.6;
+      padding: 3px 0; display: flex; gap: 8px;
+    }
+    .tl-items li::before { content: '—'; color: var(--accent); flex-shrink: 0; }
+
+    .tl-tag {
+      display: inline-block; font-size: 0.58rem; padding: 2px 7px;
+      border-radius: 5px; font-weight: 600; letter-spacing: 0.5px;
+      text-transform: uppercase; margin-left: 8px; vertical-align: middle;
+    }
+    .tag-new     { background: rgba(100,184,248,0.15); color: #64b8f8; border: 1px solid rgba(100,184,248,0.25); }
+    .tag-fix     { background: rgba(74,222,128,0.15); color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+    .tag-improve { background: rgba(192,132,252,0.15); color: #c084fc; border: 1px solid rgba(192,132,252,0.25); }
+
+    /* Announcements in devlog */
+    .announce-entry {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: 14px; padding: 14px 18px; margin-bottom: 10px;
+      display: flex; align-items: flex-start; gap: 12px;
+    }
+    .announce-entry-icon { font-size: 1.2rem; flex-shrink: 0; margin-top: 1px; }
+    .announce-entry-msg { font-size: 0.84rem; line-height: 1.55; color: var(--text); flex: 1; }
+    .announce-entry-date { font-size: 0.66rem; color: var(--text-muted); margin-top: 4px; }
+    .no-announces { font-size: 0.82rem; color: var(--text-muted); padding: 20px 0; text-align: center; }
+  </style>
+</head>
+<body class="theme-snow">
+  <canvas id="snow-canvas"></canvas>
+
+  <div class="devlog-wrap">
+    <div class="devlog-top">
+      <a href="/" class="back-home">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Home
+      </a>
+      <div>
+        <div class="devlog-title">Devlog</div>
+        <div class="devlog-sub">What's new in Local</div>
+      </div>
+    </div>
+
+    <!-- Admin announcements -->
+    <p class="section-label">📢 Announcements</p>
+    <div id="announce-section" style="margin-bottom:40px">
+      <div class="no-announces">Loading announcements…</div>
+    </div>
+
+    <!-- Version history -->
+    <p class="section-label">📋 Version History</p>
+    <div class="timeline">
+
+      <div class="tl-entry">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <span class="tl-version">v1.3.0</span>
+            <span class="tl-date">May 2026</span>
+          </div>
+          <div class="tl-title">Admin Panel &amp; Devlog <span class="tl-tag tag-new">New</span></div>
+          <ul class="tl-items">
+            <li>Admin panel for posting announcements to all users</li>
+            <li>Devlog page with full version history</li>
+            <li>Announcement banner on homepage</li>
+            <li>Proxy search bar — search Google, DuckDuckGo, or Bing inside proxy</li>
+            <li>Home search bar for quick proxy browsing</li>
+            <li>Fullscreen persists when navigating to Games</li>
+            <li>Snow is now continuous and pre-seeded across the full screen</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-entry">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <span class="tl-version">v1.2.0</span>
+            <span class="tl-date">May 2026</span>
+          </div>
+          <div class="tl-title">Cache Busting &amp; Stability <span class="tl-tag tag-fix">Fix</span></div>
+          <ul class="tl-items">
+            <li>Fixed runtime crash caused by stale service worker caching old JS</li>
+            <li>Server now sends no-store cache headers for all HTML/CSS/JS files</li>
+            <li>Added null guards to all DOM queries to prevent hard crashes</li>
+            <li>Version-stamped asset URLs to bypass existing caches</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-entry">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <span class="tl-version">v1.1.0</span>
+            <span class="tl-date">May 2026</span>
+          </div>
+          <div class="tl-title">Custom Portal Frontend <span class="tl-tag tag-new">New</span></div>
+          <ul class="tl-items">
+            <li>Completely redesigned frontend — welcome to Local</li>
+            <li>Animated nav buttons: Games, Movies, Music</li>
+            <li>Live clock widget with Space Mono font</li>
+            <li>Live weather via Open-Meteo + Nominatim geolocation</li>
+            <li>Animated snow background canvas</li>
+            <li>4 themes: Night Snow, Forest, Sunset, Space</li>
+            <li>Tab cloak with presets (Google, Khan, Classroom, Canvas)</li>
+            <li>Panic button with Esc key shortcut</li>
+            <li>Fullscreen toggle</li>
+            <li>Games page with 100 game cards</li>
+            <li>Movies (toustream.xyz) and Music (monochrome.tf) via Scramjet proxy</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="tl-entry">
+        <div class="tl-dot"></div>
+        <div class="tl-card">
+          <div class="tl-head">
+            <span class="tl-version">v1.0.0</span>
+            <span class="tl-date">May 2026</span>
+          </div>
+          <div class="tl-title">Initial Launch <span class="tl-tag tag-new">New</span></div>
+          <ul class="tl-items">
+            <li>Cloned and deployed MercuryWorkshop/Scramjet-App on Replit</li>
+            <li>Scramjet v1 proxy engine with Wisp transport</li>
+            <li>libcurl + BareMux transport layer</li>
+            <li>Fastify static file server on port 8080</li>
+          </ul>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // Snow
+    (function(){
+      const canvas = document.getElementById("snow-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      let flakes = [];
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resize(); window.addEventListener("resize", resize);
+      function mk(any) {
+        return { x: Math.random()*canvas.width, y: any?Math.random()*canvas.height:-10,
+          r:Math.random()*2.2+0.5, speed:Math.random()*0.7+0.25, opacity:Math.random()*0.6+0.15,
+          swing:Math.random()*1.8-0.9, angle:Math.random()*Math.PI*2, as:Math.random()*0.018+0.004 };
+      }
+      for(let i=0;i<200;i++) flakes.push(mk(true));
+      function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        while(flakes.length<220) flakes.push(mk(false));
+        flakes = flakes.filter(f=>f.y<canvas.height+12);
+        for(const f of flakes){
+          f.angle+=f.as; f.x+=Math.sin(f.angle)*f.swing; f.y+=f.speed;
+          ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+          ctx.fillStyle=`rgba(200,228,255,${f.opacity})`; ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    // Restore theme
+    const t = localStorage.getItem("theme") || "snow";
+    const tm = { snow:"theme-snow", forest:"theme-forest", sunset:"theme-sunset", space:"theme-space" };
+    document.body.className = tm[t] || "theme-snow";
+
+    // Load announcements
+    (async function(){
+      const sec = document.getElementById("announce-section");
+      try {
+        const data = await fetch("/api/announcements").then(r=>r.json());
+        if (!data.length) { sec.innerHTML = '<div class="no-announces">No announcements yet.</div>'; return; }
+        const icons = { info:"📢", update:"✅", warning:"⚠️" };
+        sec.innerHTML = data.map(a => `
+          <div class="announce-entry">
+            <span class="announce-entry-icon">${icons[a.type]||"📢"}</span>
+            <div>
+              <div class="announce-entry-msg">${escHtml(a.message)}</div>
+              <div class="announce-entry-date">${new Date(a.date).toLocaleString()}</div>
+            </div>
+          </div>
+        `).join("");
+      } catch {
+        sec.innerHTML = '<div class="no-announces">Could not load announcements.</div>';
+      }
+    })();
+
+    function escHtml(s) {
+      return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+  </script>
+</body>
+</html>

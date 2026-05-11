@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — Local</title>
+  <link rel="shortcut icon" href="favicon.ico" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="index.css?v=3" />
+  <style>
+    body { min-height: 100vh; background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; }
+
+    .admin-wrap {
+      max-width: 700px; margin: 0 auto; padding: 40px 24px 80px;
+      position: relative; z-index: 1;
+    }
+
+    .admin-top {
+      display: flex; align-items: center; gap: 16px; margin-bottom: 36px;
+    }
+    .back-home {
+      display: flex; align-items: center; gap: 8px;
+      padding: 8px 16px; border-radius: 11px;
+      border: 1px solid var(--glass-border); background: var(--glass);
+      color: var(--text); font-size: 0.84rem; cursor: pointer;
+      transition: all 0.22s; font-family: inherit; text-decoration: none;
+    }
+    .back-home:hover { border-color: var(--accent); color: var(--accent); }
+    .admin-title { font-size: 1.6rem; font-weight: 300; letter-spacing: 6px; text-transform: uppercase;
+      text-shadow: 0 0 30px var(--accent); }
+    .admin-sub { font-size: 0.72rem; color: var(--text-muted); letter-spacing: 2px; text-transform: uppercase; margin-top: 2px; }
+
+    /* Auth gate */
+    #auth-gate {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 40px; text-align: center;
+    }
+    #auth-gate h2 { font-size: 1rem; font-weight: 500; margin-bottom: 8px; }
+    #auth-gate p { font-size: 0.78rem; color: var(--text-muted); margin-bottom: 24px; }
+    #auth-pw {
+      width: 100%; padding: 12px 16px; background: rgba(255,255,255,0.05);
+      border: 1px solid var(--glass-border); border-radius: 12px;
+      color: var(--text); font-size: 0.92rem; font-family: inherit;
+      outline: none; margin-bottom: 14px; transition: border-color 0.2s;
+      text-align: center; letter-spacing: 3px;
+    }
+    #auth-pw:focus { border-color: var(--accent); }
+    #auth-submit {
+      width: 100%; padding: 12px; background: var(--accent);
+      border: none; border-radius: 12px; color: #06101e;
+      font-weight: 600; font-size: 0.9rem; cursor: pointer;
+      font-family: inherit; transition: all 0.2s;
+    }
+    #auth-submit:hover { opacity: 0.85; transform: translateY(-1px); }
+    #auth-error { color: #f87171; font-size: 0.78rem; margin-top: 10px; display: none; }
+
+    /* Admin panel */
+    #admin-panel { display: none; }
+
+    .section-card {
+      background: var(--glass); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 28px; margin-bottom: 24px;
+    }
+    .section-card h2 { font-size: 1rem; font-weight: 500; margin-bottom: 6px; }
+    .section-card p { font-size: 0.76rem; color: var(--text-muted); margin-bottom: 20px; line-height: 1.6; }
+
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 0.68rem; color: var(--text-muted);
+      margin-bottom: 7px; letter-spacing: 0.5px; text-transform: uppercase; }
+    .form-group input, .form-group textarea, .form-group select {
+      width: 100%; padding: 10px 14px;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid var(--glass-border); border-radius: 10px;
+      color: var(--text); font-size: 0.86rem; font-family: inherit;
+      outline: none; transition: border-color 0.2s;
+    }
+    .form-group textarea { resize: vertical; min-height: 90px; }
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
+      border-color: var(--accent);
+    }
+
+    .post-btn {
+      width: 100%; padding: 12px; background: var(--accent);
+      border: none; border-radius: 12px; color: #06101e;
+      font-weight: 600; font-size: 0.9rem; cursor: pointer;
+      font-family: inherit; transition: all 0.2s;
+    }
+    .post-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+    .post-btn:active { transform: scale(0.98); }
+
+    .status-msg { font-size: 0.78rem; margin-top: 12px; text-align: center; min-height: 20px; }
+    .status-msg.ok { color: #4ade80; }
+    .status-msg.err { color: #f87171; }
+
+    /* Existing announcements list */
+    .announce-list { display: flex; flex-direction: column; gap: 10px; }
+    .announce-item {
+      display: flex; align-items: flex-start; gap: 14px;
+      background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border);
+      border-radius: 13px; padding: 14px 16px;
+    }
+    .announce-item-body { flex: 1; }
+    .announce-item-msg { font-size: 0.86rem; line-height: 1.5; margin-bottom: 4px; }
+    .announce-item-meta { font-size: 0.68rem; color: var(--text-muted); }
+    .announce-type-badge {
+      font-size: 0.62rem; padding: 2px 8px; border-radius: 5px;
+      font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase;
+      flex-shrink: 0; align-self: center;
+    }
+    .type-info    { background: rgba(100,184,248,0.15); color: #64b8f8; border: 1px solid rgba(100,184,248,0.25); }
+    .type-update  { background: rgba(74,222,128,0.15);  color: #4ade80; border: 1px solid rgba(74,222,128,0.25); }
+    .type-warning { background: rgba(251,146,60,0.15);  color: #fb923c; border: 1px solid rgba(251,146,60,0.25); }
+
+    .delete-btn {
+      width: 30px; height: 30px; flex-shrink: 0;
+      border-radius: 8px; border: 1px solid var(--glass-border);
+      background: transparent; color: var(--text-muted);
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      font-size: 13px; transition: all 0.2s; align-self: center;
+    }
+    .delete-btn:hover { border-color: #f87171; color: #f87171; background: rgba(248,113,113,0.08); }
+
+    .no-announces { font-size: 0.82rem; color: var(--text-muted); text-align: center; padding: 24px 0; }
+
+    .logout-btn {
+      background: transparent; border: 1px solid var(--glass-border);
+      border-radius: 10px; color: var(--text-muted); font-size: 0.8rem;
+      cursor: pointer; padding: 7px 14px; font-family: inherit; transition: all 0.2s;
+    }
+    .logout-btn:hover { border-color: #f87171; color: #f87171; }
+  </style>
+</head>
+<body class="theme-snow">
+  <canvas id="snow-canvas"></canvas>
+
+  <div class="admin-wrap">
+    <div class="admin-top">
+      <a href="/" class="back-home">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Home
+      </a>
+      <div>
+        <div class="admin-title">Admin</div>
+        <div class="admin-sub">Local Portal</div>
+      </div>
+    </div>
+
+    <!-- Auth gate -->
+    <div id="auth-gate" class="section-card">
+      <h2>🔐 Admin Login</h2>
+      <p>Enter the admin password to manage announcements.</p>
+      <input type="password" id="auth-pw" placeholder="Password" />
+      <button id="auth-submit">Unlock</button>
+      <div id="auth-error">Incorrect password. Try again.</div>
+    </div>
+
+    <!-- Admin panel (hidden until auth) -->
+    <div id="admin-panel">
+
+      <div class="section-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <h2>📢 Post Announcement</h2>
+          <button class="logout-btn" id="logout-btn">Log out</button>
+        </div>
+        <p>Announcements appear as a banner on the homepage for all visitors.</p>
+
+        <div class="form-group">
+          <label>Type</label>
+          <select id="post-type">
+            <option value="info">📢 Info</option>
+            <option value="update">✅ Update</option>
+            <option value="warning">⚠️ Warning</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Message</label>
+          <textarea id="post-message" placeholder="Write your announcement here…"></textarea>
+        </div>
+        <button class="post-btn" id="post-btn">Post Announcement</button>
+        <div class="status-msg" id="post-status"></div>
+      </div>
+
+      <div class="section-card">
+        <h2>📋 All Announcements</h2>
+        <p>Delete any announcement to remove it from the banner rotation.</p>
+        <div class="announce-list" id="announce-list">
+          <div class="no-announces">Loading…</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Snow (lightweight)
+    (function(){
+      const canvas = document.getElementById("snow-canvas");
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      let flakes = [];
+      function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+      resize(); window.addEventListener("resize", resize);
+      function mk(any) {
+        return { x: Math.random()*canvas.width, y: any?Math.random()*canvas.height:-10,
+          r:Math.random()*2.2+0.5, speed:Math.random()*0.7+0.25, opacity:Math.random()*0.6+0.15,
+          swing:Math.random()*1.8-0.9, angle:Math.random()*Math.PI*2, as:Math.random()*0.018+0.004 };
+      }
+      for(let i=0;i<200;i++) flakes.push(mk(true));
+      function draw() {
+        ctx.clearRect(0,0,canvas.width,canvas.height);
+        while(flakes.length<220) flakes.push(mk(false));
+        flakes = flakes.filter(f=>f.y<canvas.height+12);
+        for(const f of flakes){
+          f.angle+=f.as; f.x+=Math.sin(f.angle)*f.swing; f.y+=f.speed;
+          ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,Math.PI*2);
+          ctx.fillStyle=`rgba(200,228,255,${f.opacity})`; ctx.fill();
+        }
+        requestAnimationFrame(draw);
+      }
+      draw();
+    })();
+
+    const ADMIN_PASSWORD_KEY = "admin_pw_session";
+    let sessionPw = sessionStorage.getItem(ADMIN_PASSWORD_KEY) || "";
+
+    const authGate   = document.getElementById("auth-gate");
+    const adminPanel = document.getElementById("admin-panel");
+    const authPw     = document.getElementById("auth-pw");
+    const authSubmit = document.getElementById("auth-submit");
+    const authError  = document.getElementById("auth-error");
+
+    async function tryLogin(pw) {
+      const r = await fetch("/api/announcements", { headers: { "x-admin-pw": pw } });
+      if (r.ok) {
+        sessionPw = pw;
+        sessionStorage.setItem(ADMIN_PASSWORD_KEY, pw);
+        showPanel();
+      } else {
+        authError.style.display = "block";
+      }
+    }
+
+    async function verifyAndShow() {
+      if (!sessionPw) return;
+      const r = await fetch("/api/announcements");
+      if (r.ok) showPanel();
+    }
+
+    function showPanel() {
+      authGate.style.display = "none";
+      adminPanel.style.display = "block";
+      loadList();
+    }
+
+    authSubmit.addEventListener("click", () => tryLogin(authPw.value));
+    authPw.addEventListener("keydown", e => { if (e.key === "Enter") tryLogin(authPw.value); });
+
+    document.getElementById("logout-btn").addEventListener("click", () => {
+      sessionPw = "";
+      sessionStorage.removeItem(ADMIN_PASSWORD_KEY);
+      authGate.style.display = "";
+      adminPanel.style.display = "none";
+      authPw.value = "";
+      authError.style.display = "none";
+    });
+
+    async function loadList() {
+      const list = document.getElementById("announce-list");
+      list.innerHTML = '<div class="no-announces">Loading…</div>';
+      const data = await fetch("/api/announcements").then(r=>r.json());
+      if (!data.length) { list.innerHTML = '<div class="no-announces">No announcements yet.</div>'; return; }
+      list.innerHTML = "";
+      data.forEach(a => {
+        const icons = { info:"📢", update:"✅", warning:"⚠️" };
+        const date = new Date(a.date).toLocaleString();
+        const el = document.createElement("div");
+        el.className = "announce-item";
+        el.innerHTML = `
+          <span class="announce-type-badge type-${a.type||"info"}">${icons[a.type]||"📢"} ${a.type||"info"}</span>
+          <div class="announce-item-body">
+            <div class="announce-item-msg">${escHtml(a.message)}</div>
+            <div class="announce-item-meta">${date}</div>
+          </div>
+          <button class="delete-btn" data-id="${a.id}" title="Delete">✕</button>
+        `;
+        list.appendChild(el);
+      });
+      list.querySelectorAll(".delete-btn").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          await fetch(`/api/announcements/${btn.dataset.id}?password=${encodeURIComponent(sessionPw)}`, { method: "DELETE" });
+          loadList();
+        });
+      });
+    }
+
+    document.getElementById("post-btn").addEventListener("click", async () => {
+      const message = document.getElementById("post-message").value.trim();
+      const type    = document.getElementById("post-type").value;
+      const status  = document.getElementById("post-status");
+      if (!message) { status.textContent = "Please write a message."; status.className = "status-msg err"; return; }
+      const r = await fetch("/api/announcements", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: sessionPw, message, type }),
+      });
+      if (r.ok) {
+        status.textContent = "✓ Announcement posted!";
+        status.className = "status-msg ok";
+        document.getElementById("post-message").value = "";
+        loadList();
+      } else {
+        const err = await r.json();
+        status.textContent = err.error || "Failed to post.";
+        status.className = "status-msg err";
+      }
+      setTimeout(() => { status.textContent = ""; }, 4000);
+    });
+
+    function escHtml(s) {
+      return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+    }
+
+    verifyAndShow();
+  </script>
+</body>
+</html>

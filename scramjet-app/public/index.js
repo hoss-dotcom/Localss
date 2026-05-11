@@ -7,7 +7,7 @@ const { ScramjetController } = $scramjetLoadController();
 const scramjet = new ScramjetController({
   files: {
     wasm: "/scram/scramjet.wasm.wasm",
-    all: "/scram/scramjet.all.js",
+    all:  "/scram/scramjet.all.js",
     sync: "/scram/scramjet.sync.js",
   },
 });
@@ -25,50 +25,108 @@ async function ensureProxy() {
   proxyReady = true;
 }
 
+let activeFrame = null;
+
 async function openProxy(url, title) {
   await ensureProxy();
   const content = document.getElementById("overlay-content");
-  content.innerHTML = "";
-  const frame = scramjet.createFrame();
-  frame.frame.style.cssText = "width:100%;height:100%;border:none;display:block;";
-  content.appendChild(frame.frame);
-  frame.go(url);
-  document.getElementById("overlay-title").textContent = title || url;
-  document.getElementById("proxy-overlay").classList.add("active");
+  if (content) {
+    content.innerHTML = "";
+    activeFrame = scramjet.createFrame();
+    activeFrame.frame.style.cssText = "width:100%;height:100%;border:none;display:block;";
+    content.appendChild(activeFrame.frame);
+    activeFrame.go(url);
+  }
+  const titleEl = document.getElementById("overlay-title");
+  // Don't show title — the addr bar shows the URL
+  if (titleEl) titleEl.textContent = "";
+  const addrInput = document.getElementById("addr-input");
+  if (addrInput) addrInput.value = url;
+  const ov = document.getElementById("proxy-overlay");
+  if (ov) ov.classList.add("active");
 }
 
+// Close overlay
 const _overlayClose = document.getElementById("overlay-close");
 if (_overlayClose) _overlayClose.addEventListener("click", () => {
   const ov = document.getElementById("proxy-overlay");
   const oc = document.getElementById("overlay-content");
   if (ov) ov.classList.remove("active");
   if (oc) oc.innerHTML = "";
+  activeFrame = null;
 });
+
+// ── Address bar (in-proxy search) ──────────────────────────
+const ENGINES = {
+  google: "https://www.google.com/search?q=",
+  ddg:    "https://duckduckgo.com/?q=",
+  bing:   "https://www.bing.com/search?q=",
+};
+
+function resolveUrl(raw, engine) {
+  if (/^https?:\/\//i.test(raw)) return raw;
+  if (/^[\w-]+\.[\w.]{2,}(\/.*)?$/.test(raw)) return "https://" + raw;
+  return (ENGINES[engine] || ENGINES.google) + encodeURIComponent(raw);
+}
+
+const addrBar = document.getElementById("addr-bar");
+if (addrBar) {
+  addrBar.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const raw    = (document.getElementById("addr-input")?.value || "").trim();
+    const engine = document.getElementById("addr-engine")?.value || "google";
+    if (!raw) return;
+    openProxy(resolveUrl(raw, engine), raw);
+  });
+}
+
+// ── Home search bar ─────────────────────────────────────────
+const homeSearchForm = document.getElementById("home-search-form");
+if (homeSearchForm) {
+  homeSearchForm.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const raw    = (document.getElementById("home-search-input")?.value || "").trim();
+    const engine = document.getElementById("home-engine")?.value || "google";
+    if (!raw) return;
+    openProxy(resolveUrl(raw, engine), raw);
+  });
+}
 
 // ============================================================
 // NAV BUTTONS
 // ============================================================
-const _gamesBtn = document.getElementById("games-btn");
+const _gamesBtn  = document.getElementById("games-btn");
 const _moviesBtn = document.getElementById("movies-btn");
 const _musicBtn  = document.getElementById("music-btn");
-if (_gamesBtn)  _gamesBtn.addEventListener("click",  () => { window.location.href = "/games.html"; });
-if (_moviesBtn) _moviesBtn.addEventListener("click", () => { openProxy("https://toustream.xyz/", "🎬 Movies"); });
-if (_musicBtn)  _musicBtn.addEventListener("click",  () => { openProxy("https://monochrome.tf", "🎵 Music"); });
+
+if (_gamesBtn) _gamesBtn.addEventListener("click", () => {
+  // Persist fullscreen preference so games.html can restore it
+  localStorage.setItem("fullscreen_pref", document.fullscreenElement ? "1" : "0");
+  window.location.href = "/games.html";
+});
+if (_moviesBtn) _moviesBtn.addEventListener("click", () => openProxy("https://toustream.xyz/",  "🎬 Movies"));
+if (_musicBtn)  _musicBtn.addEventListener("click",  () => openProxy("https://monochrome.tf",   "🎵 Music"));
+
+// Devlog / Admin buttons
+const _devlogBtn = document.getElementById("devlog-btn");
+const _adminBtn  = document.getElementById("admin-btn");
+if (_devlogBtn) _devlogBtn.addEventListener("click", () => { window.location.href = "/devlog.html"; });
+if (_adminBtn)  _adminBtn.addEventListener("click",  () => { window.location.href = "/admin.html"; });
 
 // ============================================================
 // CLOCK
 // ============================================================
 function updateClock() {
   const now = new Date();
-  const h = String(now.getHours()).padStart(2, "0");
-  const m = String(now.getMinutes()).padStart(2, "0");
-  const s = String(now.getSeconds()).padStart(2, "0");
-  document.getElementById("clock-time").textContent = `${h}:${m}:${s}`;
-  const days = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+  const h = String(now.getHours()).padStart(2,"0");
+  const m = String(now.getMinutes()).padStart(2,"0");
+  const s = String(now.getSeconds()).padStart(2,"0");
+  const el = document.getElementById("clock-time");
+  if (el) el.textContent = `${h}:${m}:${s}`;
+  const days   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
   const months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-  const now2 = new Date();
-  document.getElementById("clock-date").textContent =
-    `${days[now2.getDay()]}, ${months[now2.getMonth()]} ${now2.getDate()}`;
+  const de = document.getElementById("clock-date");
+  if (de) de.textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
 }
 updateClock();
 setInterval(updateClock, 1000);
@@ -105,6 +163,7 @@ const WX = {
 
 async function fetchWeather() {
   const widget = document.getElementById("weather-widget");
+  if (!widget) return;
   if (!navigator.geolocation) {
     widget.innerHTML = '<span class="weather-loading">📍 No location</span>';
     return;
@@ -116,16 +175,15 @@ async function fetchWeather() {
         fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&temperature_unit=fahrenheit`),
         fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`),
       ]);
-      const wx = await wxRes.json();
+      const wx  = await wxRes.json();
       const geo = await geoRes.json();
-      const cw = wx.current_weather;
+      const cw   = wx.current_weather;
       const info = WX[cw.weathercode] || { e:"🌡️", d:"Unknown" };
       const city = geo.address?.city || geo.address?.town || geo.address?.village || geo.address?.county || "Unknown";
-      const temp = Math.round(cw.temperature);
       widget.innerHTML = `
         <div class="weather-icon">${info.e}</div>
         <div>
-          <div class="weather-temp">${temp}°F</div>
+          <div class="weather-temp">${Math.round(cw.temperature)}°F</div>
           <div class="weather-desc">${info.d}</div>
           <div class="weather-loc">📍 ${city}</div>
         </div>`;
@@ -133,13 +191,13 @@ async function fetchWeather() {
       widget.innerHTML = '<span class="weather-loading">Weather unavailable</span>';
     }
   }, () => {
-    widget.innerHTML = '<span class="weather-loading">📍 Location denied</span>';
+    if (widget) widget.innerHTML = '<span class="weather-loading">📍 Location denied</span>';
   });
 }
 fetchWeather();
 
 // ============================================================
-// SNOW
+// SNOW — pre-seeded across full screen for continuous coverage
 // ============================================================
 let snowEnabled = true;
 
@@ -150,34 +208,38 @@ function initSnow() {
   let flakes = [];
 
   function resize() {
-    canvas.width = window.innerWidth;
+    canvas.width  = window.innerWidth;
     canvas.height = window.innerHeight;
   }
   resize();
   window.addEventListener("resize", resize);
 
-  function mkFlake() {
+  function mkFlake(startAnywhere) {
     return {
-      x: Math.random() * canvas.width,
-      y: -10,
-      r: Math.random() * 2.2 + 0.5,
-      speed: Math.random() * 0.7 + 0.25,
-      opacity: Math.random() * 0.65 + 0.15,
-      swing: Math.random() * 1.8 - 0.9,
-      angle: Math.random() * Math.PI * 2,
-      angleSpeed: Math.random() * 0.018 + 0.004,
+      x:          Math.random() * canvas.width,
+      y:          startAnywhere ? Math.random() * canvas.height : -10,
+      r:          Math.random() * 2.6 + 0.5,
+      speed:      Math.random() * 0.85 + 0.25,
+      opacity:    Math.random() * 0.7  + 0.15,
+      swing:      Math.random() * 2.2  - 1.1,
+      angle:      Math.random() * Math.PI * 2,
+      angleSpeed: Math.random() * 0.02 + 0.004,
     };
   }
+
+  // Pre-seed flakes across the entire screen so it looks continuous from load
+  for (let i = 0; i < 280; i++) flakes.push(mkFlake(true));
 
   function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     if (snowEnabled) {
-      while (flakes.length < 170) flakes.push(mkFlake());
-      flakes = flakes.filter(f => f.y < canvas.height + 12);
+      // Top up to 280 flakes — new ones always enter from the top
+      while (flakes.length < 280) flakes.push(mkFlake(false));
+      flakes = flakes.filter(f => f.y < canvas.height + 14);
       for (const f of flakes) {
         f.angle += f.angleSpeed;
-        f.x += Math.sin(f.angle) * f.swing;
-        f.y += f.speed;
+        f.x     += Math.sin(f.angle) * f.swing;
+        f.y     += f.speed;
         ctx.beginPath();
         ctx.arc(f.x, f.y, f.r, 0, Math.PI * 2);
         ctx.fillStyle = `rgba(200,228,255,${f.opacity})`;
@@ -192,7 +254,8 @@ function initSnow() {
 // ============================================================
 // FULLSCREEN
 // ============================================================
-document.getElementById("fullscreen-btn").addEventListener("click", () => {
+const _fsBtn = document.getElementById("fullscreen-btn");
+if (_fsBtn) _fsBtn.addEventListener("click", () => {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
   } else {
@@ -200,22 +263,34 @@ document.getElementById("fullscreen-btn").addEventListener("click", () => {
   }
 });
 document.addEventListener("fullscreenchange", () => {
-  document.getElementById("fs-expand").style.display = document.fullscreenElement ? "none" : "";
-  document.getElementById("fs-shrink").style.display = document.fullscreenElement ? "" : "none";
+  const isFs = !!document.fullscreenElement;
+  localStorage.setItem("fullscreen_pref", isFs ? "1" : "0");
+  const exp = document.getElementById("fs-expand");
+  const shr = document.getElementById("fs-shrink");
+  if (exp) exp.style.display = isFs ? "none" : "";
+  if (shr) shr.style.display = isFs ? "" : "none";
 });
 
 // ============================================================
 // SETTINGS
 // ============================================================
-const settingsPanel = document.getElementById("settings-panel");
+const settingsPanel   = document.getElementById("settings-panel");
 const settingsOverlay = document.getElementById("settings-overlay");
 
-function openSettings()  { settingsPanel.classList.add("open"); settingsOverlay.classList.add("active"); }
-function closeSettings() { settingsPanel.classList.remove("open"); settingsOverlay.classList.remove("active"); }
+function openSettings()  {
+  if (settingsPanel)   settingsPanel.classList.add("open");
+  if (settingsOverlay) settingsOverlay.classList.add("active");
+}
+function closeSettings() {
+  if (settingsPanel)   settingsPanel.classList.remove("open");
+  if (settingsOverlay) settingsOverlay.classList.remove("active");
+}
 
-document.getElementById("settings-btn").addEventListener("click", openSettings);
-document.getElementById("settings-close").addEventListener("click", closeSettings);
-settingsOverlay.addEventListener("click", closeSettings);
+const _settingsBtn   = document.getElementById("settings-btn");
+const _settingsClose = document.getElementById("settings-close");
+if (_settingsBtn)   _settingsBtn.addEventListener("click", openSettings);
+if (_settingsClose) _settingsClose.addEventListener("click", closeSettings);
+if (settingsOverlay) settingsOverlay.addEventListener("click", closeSettings);
 
 // Tab Cloak
 let faviconEl = document.querySelector("link[rel='shortcut icon']");
@@ -227,38 +302,44 @@ if (!faviconEl) {
 
 function applyCloak(title, icon) {
   if (title) { document.title = title; localStorage.setItem("cloak_title", title); }
-  if (icon)  { faviconEl.href = icon;  localStorage.setItem("cloak_icon",  icon); }
+  if (icon)  { faviconEl.href = icon;  localStorage.setItem("cloak_icon",  icon);  }
 }
 
 document.querySelectorAll(".preset-btn").forEach(btn => {
   btn.addEventListener("click", () => {
-    document.getElementById("tab-title-input").value = btn.dataset.title;
-    document.getElementById("tab-icon-input").value  = btn.dataset.icon;
+    const ti = document.getElementById("tab-title-input");
+    const ii = document.getElementById("tab-icon-input");
+    if (ti) ti.value = btn.dataset.title;
+    if (ii) ii.value = btn.dataset.icon;
     applyCloak(btn.dataset.title, btn.dataset.icon);
   });
 });
 
-document.getElementById("apply-cloak").addEventListener("click", () => {
+const _applyCloak = document.getElementById("apply-cloak");
+if (_applyCloak) _applyCloak.addEventListener("click", () => {
   applyCloak(
-    document.getElementById("tab-title-input").value,
-    document.getElementById("tab-icon-input").value
+    document.getElementById("tab-title-input")?.value,
+    document.getElementById("tab-icon-input")?.value
   );
 });
 
-document.getElementById("reset-cloak").addEventListener("click", () => {
+const _resetCloak = document.getElementById("reset-cloak");
+if (_resetCloak) _resetCloak.addEventListener("click", () => {
   document.title = "Local";
-  faviconEl.href = "/favicon.ico";
+  if (faviconEl) faviconEl.href = "/favicon.ico";
   localStorage.removeItem("cloak_title");
   localStorage.removeItem("cloak_icon");
-  document.getElementById("tab-title-input").value = "";
-  document.getElementById("tab-icon-input").value  = "";
+  const ti = document.getElementById("tab-title-input");
+  const ii = document.getElementById("tab-icon-input");
+  if (ti) ti.value = "";
+  if (ii) ii.value = "";
 });
 
 // Restore saved cloak
 const _ct = localStorage.getItem("cloak_title");
 const _ci = localStorage.getItem("cloak_icon");
-if (_ct) { document.title = _ct; document.getElementById("tab-title-input").value = _ct; }
-if (_ci) { faviconEl.href = _ci; document.getElementById("tab-icon-input").value  = _ci; }
+if (_ct) { document.title = _ct; const ti = document.getElementById("tab-title-input"); if (ti) ti.value = _ct; }
+if (_ci) { if (faviconEl) faviconEl.href = _ci; const ii = document.getElementById("tab-icon-input"); if (ii) ii.value = _ci; }
 
 // Themes
 const THEMES = { snow:"theme-snow", forest:"theme-forest", sunset:"theme-sunset", space:"theme-space" };
@@ -275,27 +356,73 @@ function applyTheme(name) {
 document.querySelectorAll(".theme-btn").forEach(btn => {
   btn.addEventListener("click", () => applyTheme(btn.dataset.theme));
 });
-
-// Restore saved theme
-const _savedTheme = localStorage.getItem("theme") || "snow";
-applyTheme(_savedTheme);
+applyTheme(localStorage.getItem("theme") || "snow");
 
 // Panic
 const panicInput = document.getElementById("panic-url-input");
-const _savedPanic = localStorage.getItem("panic_url");
-if (_savedPanic) panicInput.value = _savedPanic;
-panicInput.addEventListener("input", () => localStorage.setItem("panic_url", panicInput.value));
-
-function doPanic() {
-  window.location.href = panicInput.value || "https://classroom.google.com";
+if (panicInput) {
+  const _savedPanic = localStorage.getItem("panic_url");
+  if (_savedPanic) panicInput.value = _savedPanic;
+  panicInput.addEventListener("input", () => localStorage.setItem("panic_url", panicInput.value));
 }
 
-document.getElementById("panic-btn").addEventListener("click", doPanic);
+function doPanic() {
+  const url = panicInput?.value || "https://classroom.google.com";
+  window.location.href = url;
+}
+
+const _panicBtn = document.getElementById("panic-btn");
+if (_panicBtn) _panicBtn.addEventListener("click", doPanic);
 document.addEventListener("keydown", e => {
-  if (e.key === "Escape" && !settingsPanel.classList.contains("open")) doPanic();
+  if (e.key === "Escape" && !settingsPanel?.classList.contains("open") &&
+      !document.getElementById("proxy-overlay")?.classList.contains("active")) {
+    doPanic();
+  }
 });
+
+// ============================================================
+// ANNOUNCEMENTS
+// ============================================================
+async function loadAnnouncements() {
+  try {
+    const data = await fetch("/api/announcements").then(r => r.json());
+    if (!Array.isArray(data) || !data.length) return;
+
+    const dismissed = new Set(
+      JSON.parse(localStorage.getItem("dismissed_announces") || "[]")
+    );
+    const latest = data.find(a => !dismissed.has(a.id));
+    if (!latest) return;
+
+    const strip = document.getElementById("announce-strip");
+    const text  = document.getElementById("announce-text");
+    const icon  = document.getElementById("announce-icon");
+    if (!strip || !text) return;
+
+    const icons = { info:"📢", update:"✅", warning:"⚠️" };
+    if (icon) icon.textContent = icons[latest.type] || "📢";
+    text.textContent = latest.message;
+    strip.dataset.id   = latest.id;
+    strip.dataset.type = latest.type || "info";
+    strip.style.display = "";
+  } catch (_) {}
+}
+
+const _announceDismiss = document.getElementById("announce-dismiss");
+if (_announceDismiss) {
+  _announceDismiss.addEventListener("click", () => {
+    const strip = document.getElementById("announce-strip");
+    if (!strip) return;
+    const id = Number(strip.dataset.id);
+    const dismissed = new Set(JSON.parse(localStorage.getItem("dismissed_announces") || "[]"));
+    dismissed.add(id);
+    localStorage.setItem("dismissed_announces", JSON.stringify([...dismissed]));
+    strip.style.display = "none";
+  });
+}
 
 // ============================================================
 // BOOT
 // ============================================================
 initSnow();
+loadAnnouncements();

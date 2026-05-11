@@ -7,14 +7,21 @@
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="index.css?v=2" />
+  <link rel="stylesheet" href="index.css?v=3" />
   <script src="/scram/scramjet.all.js"></script>
   <script src="/baremux/index.js"></script>
-  <script src="register-sw.js?v=2" defer></script>
-  <script src="index.js?v=2" defer></script>
+  <script src="register-sw.js?v=3" defer></script>
+  <script src="index.js?v=3" defer></script>
 </head>
 <body class="theme-snow">
   <canvas id="snow-canvas"></canvas>
+
+  <!-- Announcement banner -->
+  <div class="announce-strip" id="announce-strip" style="display:none">
+    <span class="announce-icon" id="announce-icon">📢</span>
+    <span class="announce-text" id="announce-text"></span>
+    <button class="announce-dismiss" id="announce-dismiss" title="Dismiss">✕</button>
+  </div>
 
   <div class="widgets-bar">
     <div class="clock-widget">
@@ -50,9 +57,29 @@
         <div class="btn-shine"></div>
       </button>
     </div>
+
+    <!-- Home proxy search bar -->
+    <form class="home-search-form" id="home-search-form" autocomplete="off">
+      <select class="home-engine" id="home-engine">
+        <option value="google">Google</option>
+        <option value="ddg">DuckDuckGo</option>
+        <option value="bing">Bing</option>
+      </select>
+      <input class="home-search-input" id="home-search-input" type="text"
+        placeholder="Search the web or enter a URL…" spellcheck="false" />
+      <button class="home-search-go" type="submit">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      </button>
+    </form>
   </main>
 
   <div class="bottom-bar">
+    <button class="icon-btn" id="devlog-btn" title="Devlog">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+    </button>
+    <button class="icon-btn" id="admin-btn" title="Admin">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </button>
     <button class="icon-btn" id="fullscreen-btn" title="Fullscreen">
       <svg id="fs-expand" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
       <svg id="fs-shrink" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display:none"><path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3"/></svg>
@@ -123,13 +150,22 @@
     </div>
   </div>
 
+  <!-- Proxy overlay -->
   <div class="proxy-overlay" id="proxy-overlay">
     <div class="overlay-bar">
       <button class="overlay-close" id="overlay-close">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
         Back
       </button>
-      <span class="overlay-title" id="overlay-title"></span>
+      <form class="addr-bar" id="addr-bar" autocomplete="off">
+        <select class="addr-engine" id="addr-engine">
+          <option value="google">Google</option>
+          <option value="ddg">DuckDuckGo</option>
+          <option value="bing">Bing</option>
+        </select>
+        <input class="addr-input" id="addr-input" type="text" placeholder="Search or enter a URL…" spellcheck="false" />
+        <button class="addr-go" type="submit">Go</button>
+      </form>
     </div>
     <div class="overlay-content" id="overlay-content"></div>
   </div>
