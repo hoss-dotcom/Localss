@@ -7,12 +7,12 @@
   <link rel="shortcut icon" href="favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="index.css?v=2" />
+  <link rel="stylesheet" href="index.css?v=4" />
   <script src="/scram/scramjet.all.js"></script>
   <script src="/baremux/index.js"></script>
-  <script src="register-sw.js?v=2" defer></script>
-  <script src="games-data.js?v=2" defer></script>
-  <script src="games.js?v=2" defer></script>
+  <script src="register-sw.js?v=4" defer></script>
+  <script src="games-data.js?v=4" defer></script>
+  <script src="games.js?v=4" defer></script>
 </head>
 <body class="theme-snow games-page">
   <canvas id="snow-canvas"></canvas>
@@ -25,7 +25,22 @@
     <h1>Games</h1>
   </div>
 
+  <div class="games-search-wrap">
+    <div class="games-search-box">
+      <svg class="games-search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+      <input id="games-search" class="games-search-input" type="text" placeholder="Search games…" autocomplete="off" spellcheck="false" />
+      <button class="games-search-clear" id="games-search-clear" aria-label="Clear">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <span class="games-count" id="games-count"></span>
+  </div>
+
   <div class="games-grid" id="games-grid"></div>
+  <div class="games-empty" id="games-empty" style="display:none;">
+    <div class="games-empty-icon">🎮</div>
+    <div class="games-empty-text">No games found for "<span id="games-empty-query"></span>"</div>
+  </div>
 
   <div class="proxy-overlay" id="proxy-overlay">
     <div class="overlay-bar">

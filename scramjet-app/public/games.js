@@ -152,6 +152,7 @@ function renderGames() {
   GAMES.forEach((game) => {
     const card = document.createElement("div");
     card.className = "game-card" + (game.url ? "" : " no-url");
+    card.dataset.name = game.name.toLowerCase();
     card.innerHTML = `
       <div class="game-icon">${game.icon}</div>
       <div class="game-name">${game.name}</div>
@@ -161,6 +162,51 @@ function renderGames() {
       card.addEventListener("click", () => openProxy(game.url, `🎮 ${game.name}`));
     }
     grid.appendChild(card);
+  });
+  updateCount(GAMES.length);
+}
+
+// ============================================================
+// SEARCH
+// ============================================================
+function updateCount(visible) {
+  const el = document.getElementById("games-count");
+  if (el) el.textContent = visible === (typeof GAMES !== "undefined" ? GAMES.length : 0)
+    ? `${visible} games`
+    : `${visible} result${visible === 1 ? "" : "s"}`;
+}
+
+function filterGames(query) {
+  const q = query.trim().toLowerCase();
+  const cards = document.querySelectorAll(".game-card");
+  const empty = document.getElementById("games-empty");
+  const emptyQ = document.getElementById("games-empty-query");
+  const clearBtn = document.getElementById("games-search-clear");
+
+  let visible = 0;
+  cards.forEach((card) => {
+    const match = !q || card.dataset.name.includes(q);
+    card.style.display = match ? "" : "none";
+    if (match) visible++;
+  });
+
+  if (empty) empty.style.display = visible === 0 ? "flex" : "none";
+  if (emptyQ) emptyQ.textContent = query.trim();
+  if (clearBtn) clearBtn.style.opacity = q ? "1" : "0";
+  updateCount(visible);
+}
+
+const _searchInput = document.getElementById("games-search");
+if (_searchInput) {
+  _searchInput.addEventListener("input", (e) => filterGames(e.target.value));
+}
+
+const _clearBtn = document.getElementById("games-search-clear");
+if (_clearBtn) {
+  _clearBtn.addEventListener("click", () => {
+    const inp = document.getElementById("games-search");
+    if (inp) { inp.value = ""; inp.focus(); }
+    filterGames("");
   });
 }
 
