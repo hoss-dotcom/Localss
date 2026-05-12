@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Local</title>
+  
   <link rel="shortcut icon" href="favicon.ico" />
   
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -11,8 +12,8 @@
   
   <link rel="stylesheet" href="index.css?v=3" />
 
-  <script src="scramjet-app/src/scramjet.all.js"></script>
-  <script src="scramjet-app/src/baremux/index.js"></script>
+  <script src="scramjet.all.js"></script>
+  <script src="baremux/index.js"></script>
   <script src="register-sw.js?v=3" defer></script>
   <script src="index.js?v=3" defer></script>
 </head>
@@ -98,74 +99,26 @@
       <h2>Settings</h2>
       <button class="settings-close" id="settings-close">✕</button>
     </div>
-
     <div class="settings-section">
       <h3>🎭 Tab Cloak</h3>
-      <p class="settings-desc">Change how this tab looks to others</p>
       <div class="tab-presets">
         <button class="preset-btn" data-title="Google" data-icon="https://www.google.com/favicon.ico">Google</button>
         <button class="preset-btn" data-title="Khan Academy" data-icon="https://www.khanacademy.org/favicon.ico">Khan Academy</button>
         <button class="preset-btn" data-title="Google Classroom" data-icon="https://ssl.gstatic.com/classroom/favicon.png">Classroom</button>
-        <button class="preset-btn" data-title="Canvas LMS" data-icon="https://du11hjcvx0uqb.cloudfront.net/favicon.ico">Canvas</button>
       </div>
       <div class="input-group">
         <label>Tab Title</label>
         <input type="text" id="tab-title-input" placeholder="Custom title…" />
       </div>
-      <div class="input-group">
-        <label>Favicon URL</label>
-        <input type="text" id="tab-icon-input" placeholder="https://example.com/favicon.ico" />
-      </div>
       <button class="apply-btn" id="apply-cloak">Apply Cloak</button>
-      <button class="reset-btn" id="reset-cloak">Reset to Default</button>
-    </div>
-
-    <div class="settings-section">
-      <h3>🎨 Themes</h3>
-      <div class="theme-grid">
-        <button class="theme-btn" data-theme="snow">
-          <div class="theme-preview snow-preview"></div>
-          <span>Night Snow</span>
-        </button>
-        <button class="theme-btn" data-theme="forest">
-          <div class="theme-preview forest-preview"></div>
-          <span>Forest</span>
-        </button>
-        <button class="theme-btn" data-theme="sunset">
-          <div class="theme-preview sunset-preview"></div>
-          <span>Sunset</span>
-        </button>
-        <button class="theme-btn" data-theme="space">
-          <div class="theme-preview space-preview"></div>
-          <span>Space</span>
-        </button>
-      </div>
-    </div>
-
-    <div class="settings-section">
-      <h3>🚨 Panic Button</h3>
-      <p class="settings-desc">Instantly navigate away. Press <kbd>Esc</kbd> anywhere.</p>
-      <div class="input-group">
-        <label>Redirect URL</label>
-        <input type="text" id="panic-url-input" value="https://classroom.google.com" />
-      </div>
-      <button class="panic-btn" id="panic-btn">🚨 PANIC NOW</button>
     </div>
   </div>
 
   <div class="proxy-overlay" id="proxy-overlay">
     <div class="overlay-bar">
-      <button class="overlay-close" id="overlay-close">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
-        Back
-      </button>
+      <button class="overlay-close" id="overlay-close">Back</button>
       <form class="addr-bar" id="addr-bar" autocomplete="off">
-        <select class="addr-engine" id="addr-engine">
-          <option value="google">Google</option>
-          <option value="ddg">DuckDuckGo</option>
-          <option value="bing">Bing</option>
-        </select>
-        <input class="addr-input" id="addr-input" type="text" placeholder="Search or enter a URL…" spellcheck="false" />
+        <input class="addr-input" id="addr-input" type="text" placeholder="Search or enter a URL…" />
         <button class="addr-go" type="submit">Go</button>
       </form>
     </div>
