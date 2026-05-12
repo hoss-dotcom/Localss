@@ -5,18 +5,20 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Local</title>
   <link rel="shortcut icon" href="favicon.ico" />
+  
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono&display=swap" rel="stylesheet" />
+  
   <link rel="stylesheet" href="index.css?v=3" />
-  <script src="/scram/scramjet.all.js"></script>
-  <script src="/baremux/index.js"></script>
+
+  <script src="scramjet-app/src/scramjet.all.js"></script>
+  <script src="scramjet-app/src/baremux/index.js"></script>
   <script src="register-sw.js?v=3" defer></script>
   <script src="index.js?v=3" defer></script>
 </head>
 <body class="theme-snow">
   <canvas id="snow-canvas"></canvas>
 
-  <!-- Announcement banner -->
   <div class="announce-strip" id="announce-strip" style="display:none">
     <span class="announce-icon" id="announce-icon">📢</span>
     <span class="announce-text" id="announce-text"></span>
@@ -58,10 +60,8 @@
       </button>
     </div>
 
-    <!-- Floating tips -->
     <div class="tips-row" id="tips-row"></div>
 
-    <!-- Home proxy search bar -->
     <form class="home-search-form" id="home-search-form" autocomplete="off">
       <select class="home-engine" id="home-engine">
         <option value="google">Google</option>
@@ -153,7 +153,6 @@
     </div>
   </div>
 
-  <!-- Proxy overlay -->
   <div class="proxy-overlay" id="proxy-overlay">
     <div class="overlay-bar">
       <button class="overlay-close" id="overlay-close">
