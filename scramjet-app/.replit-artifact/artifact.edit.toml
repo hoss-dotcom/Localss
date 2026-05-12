@@ -1,0 +1,25 @@
+kind = "web"
+previewPath = "/"
+title = "Local Portal"
+version = "1.0.0"
+id = "scramjet-local-portal"
+
+[[services]]
+localPort = 8080
+name = "Local Portal"
+paths = ["/"]
+
+[services.development]
+run = "cd scramjet-app && node src/index.js"
+
+[services.production]
+
+[services.production.build]
+args = ["npm", "--prefix", "/home/runner/workspace/scramjet-app", "install"]
+
+[services.production.run]
+args = ["node", "/home/runner/workspace/scramjet-app/src/index.js"]
+
+[services.production.run.env]
+PORT = "8080"
+NODE_ENV = "production"

@@ -24,13 +24,13 @@ args = "Start application"
 name = "Start application"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "cd scramjet-app && node src/index.js"
-waitForPort = 8080
-
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "bash start.sh"
+waitForPort = 8080
 
 [agent]
 stack = "PNPM_WORKSPACE"
