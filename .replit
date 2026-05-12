@@ -18,15 +18,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Scramjet"
+args = "Start application"
 
 [[workflows.workflow]]
-name = "Scramjet"
+name = "Start application"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd scramjet-app && PORT=8080 node src/index.js"
+args = "cd scramjet-app && node src/index.js"
 waitForPort = 8080
 
 [workflows.workflow.metadata]
